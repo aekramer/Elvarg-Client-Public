@@ -5539,6 +5539,8 @@ public class Client extends GameEngine implements RSClient {
         cameraHorizontal = 0;
         minimapRotation = 0;
         minimapZoom = 0;
+        tmpCamAngleX = 0;
+        tmpCamAngleY = 0;
     }
 
     //TODO menu actions
