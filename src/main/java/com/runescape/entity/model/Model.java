@@ -751,7 +751,6 @@ public class Model extends Renderable implements RSModel {
                 }
             }
 
-
             diagonal2DAboveOrigin = (int)(Math.sqrt(diagonal2DAboveOrigin) + 0.98999999999999999);
             diagonal3DAboveOrigin = (int)(Math.sqrt(diagonal2DAboveOrigin * diagonal2DAboveOrigin + super.modelBaseY * super.modelBaseY) + 0.98999999999999999);
             diagonal3D = diagonal3DAboveOrigin + (int)(Math.sqrt(diagonal2DAboveOrigin * diagonal2DAboveOrigin + maxY * maxY) + 0.98999999999999999);
@@ -1697,11 +1696,10 @@ public class Model extends Renderable implements RSModel {
 
         boolean inView = nearSight || this.texturesCount > 0;
 
-        boolean var32 = method322(uid);
+        //boolean var32 = method322(uid);
         boolean highlighted = false;
 
-        int var52;
-        if (uid > 0 && var32 && mouseInViewport) {
+        if (uid > 0 && mouseInViewport) { // var32 should replace (uid > 0) in osrs, but does not work for older maps (cox pillars "null" have menus, agility obstacles/levers don't)
             boolean withinBounds = false;
 
             byte distanceMin = 50;
