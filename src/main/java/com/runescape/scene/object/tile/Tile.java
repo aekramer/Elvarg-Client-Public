@@ -38,7 +38,7 @@ public final class Tile extends Linkable implements RSTile {
 	public WallDecoration wallDecoration;
 	public GroundDecoration groundDecoration;
 	public GroundItemTile groundItemTile;
-	public int gameObjectIndex;
+	public int gameObjectsCount;
 	public final GameObject[] gameObjects;
 	public final int[] tiledObjectMasks;
 	public int totalTiledObjectMask;

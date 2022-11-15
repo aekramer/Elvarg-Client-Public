@@ -76,7 +76,7 @@ public final class Projectile extends Renderable implements RSProjectile {
             projectileModel.scale(projectileGFX.resizeXY, projectileGFX.resizeXY, projectileGFX.resizeZ);
         }
         projectileModel.rotateZ(tiltAngle);
-        projectileModel.light(64 + projectileGFX.modelBrightness, 850 + projectileGFX.modelShadow, -30, -50, -30, true);
+        projectileModel = projectileModel.light(64 + projectileGFX.modelBrightness, 850 + projectileGFX.modelShadow, -30, -50, -30);
         return projectileModel;
     }
 

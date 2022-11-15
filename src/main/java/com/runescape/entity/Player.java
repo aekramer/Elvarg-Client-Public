@@ -90,7 +90,7 @@ public final class Player extends Mob implements RSPlayer {
             if (spotAnimationModel != null) {
 
                 Model model_3 = new Model(true, Frame.noAnimationInProgress(super.currentAnimation), false, spotAnimationModel);
-                model_3.offsetBy(0, -super.graphicHeight, 0);
+                model_3.changeOffset(0, -super.graphicHeight, 0);
                 model_3.generateBones();
                 /*model_3.applyAnimationFrame(spotAnim.animationSequence.primaryFrames[super.currentAnimation], nextFrame,
                         cycle1, cycle2);*/
@@ -99,7 +99,7 @@ public final class Player extends Mob implements RSPlayer {
                 model_3.vertexGroups = null;
                 if (spotAnim.resizeXY != 128 || spotAnim.resizeZ != 128)
                     model_3.scale(spotAnim.resizeXY, spotAnim.resizeXY, spotAnim.resizeZ);
-                model_3.light(64 + spotAnim.modelShadow, 850 + spotAnim.modelBrightness, -30, -50, -30, true);
+                model_3 = model_3.light(64 + spotAnim.modelShadow, 850 + spotAnim.modelBrightness, -30, -50, -30);
                 Model models[] = {animatedModel, model_3};
                 animatedModel = new Model(models);
             }
@@ -110,7 +110,7 @@ public final class Player extends Mob implements RSPlayer {
                 playerModel = null;
             if (Client.tick >= objectModelStart && Client.tick < objectModelStop) {
                 Model model_1 = playerModel;
-                model_1.offsetBy(objectXPos - super.x, objectCenterHeight - anInt1709, objectYPos - super.y);
+                model_1.changeOffset(objectXPos - super.x, objectCenterHeight - anInt1709, objectYPos - super.y);
                 if (super.nextStepOrientation == 512) {
                     model_1.rotate90Degrees();
                     model_1.rotate90Degrees();
@@ -132,7 +132,7 @@ public final class Player extends Mob implements RSPlayer {
                     model_1.rotate90Degrees();
                     model_1.rotate90Degrees();
                 }
-                model_1.offsetBy(super.x - objectXPos, anInt1709 - objectCenterHeight, super.y - objectYPos);
+                model_1.changeOffset(super.x - objectXPos, anInt1709 - objectCenterHeight, super.y - objectYPos);
             }
         }
         animatedModel.singleTile = true;
@@ -344,7 +344,7 @@ public final class Player extends Mob implements RSPlayer {
                 }
 
             model_1.generateBones();
-            model_1.light(64, 850, -30, -50, -30, true);
+            model_1 = model_1.light(64, 850, -30, -50, -30);
             models.put(model_1, l);
             cachedModel = l;
         }

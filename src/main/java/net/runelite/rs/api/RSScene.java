@@ -36,13 +36,13 @@ public interface RSScene extends Scene
 	void updateOccluders();
 
 	@Import("xSize")
-	int getMaxX();
+	int getxSize();
 
 	@Import("planes")
-	int getMaxY();
+	int getPlanes();
 
 	@Import("ySize")
-	int getMaxZ();
+	int getySize();
 
 	@Import("minPlane")
 	int getMinLevel();

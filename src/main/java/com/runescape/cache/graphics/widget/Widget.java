@@ -4368,7 +4368,7 @@ public class Widget {
 			model_1.animate(k);
 		if (j != -1)
 			model_1.animate(j);
-		model_1.light(64, 850, -30, -50, -30, true);
+		model_1 = model_1.light(64, 850, -30, -50, -30);
 		return model_1;
 	}
 	

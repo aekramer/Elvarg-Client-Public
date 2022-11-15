@@ -60,7 +60,7 @@ public final class AnimableObject extends Renderable {
                 model_1.rotate90Degrees();
             }
         }
-        model_1.light(64 + graphic.modelBrightness, 850 + graphic.modelShadow, -30, -50, -30, true);
+        model_1 = model_1.light(64 + graphic.modelBrightness, 850 + graphic.modelShadow, -30, -50, -30);
         return model_1;
     }
 

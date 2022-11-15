@@ -48,9 +48,9 @@ public final class SceneGraph implements RSScene {
         gameObjectsCache = new GameObject[5000];
         anIntArray486 = new int[10000];
         anIntArray487 = new int[10000];
-        maxY = zLocSize;
-        maxX = xLocSize;
-        maxZ = yLocSize;
+        planes = zLocSize;
+        xSize = xLocSize;
+        ySize = yLocSize;
         tileArray = new Tile[zLocSize][xLocSize][yLocSize];
         anIntArrayArrayArray445 = new int[zLocSize][xLocSize + 1][yLocSize + 1];
         this.heightMap = heightMap;
@@ -70,9 +70,9 @@ public final class SceneGraph implements RSScene {
     }
 
     public void initToNull() {
-        for (int zLoc = 0; zLoc < maxY; zLoc++)
-            for (int xLoc = 0; xLoc < maxX; xLoc++)
-                for (int yLoc = 0; yLoc < maxZ; yLoc++)
+        for (int zLoc = 0; zLoc < planes; zLoc++)
+            for (int xLoc = 0; xLoc < xSize; xLoc++)
+                for (int yLoc = 0; yLoc < ySize; yLoc++)
                     tileArray[zLoc][xLoc][yLoc] = null;
         for (int plane = 0; plane < cullingClusterPlaneCount; plane++) {
             for (int j1 = 0; j1 < sceneClusterCounts[plane]; j1++)
@@ -90,8 +90,8 @@ public final class SceneGraph implements RSScene {
 
     public void method275(int zLoc) {
         minLevel = zLoc;
-        for (int xLoc = 0; xLoc < maxX; xLoc++) {
-            for (int yLoc = 0; yLoc < maxZ; yLoc++)
+        for (int xLoc = 0; xLoc < xSize; xLoc++) {
+            for (int yLoc = 0; yLoc < ySize; yLoc++)
                 if (tileArray[zLoc][xLoc][yLoc] == null)
                     tileArray[zLoc][xLoc][yLoc] = new Tile(zLoc, xLoc, yLoc);
         }
@@ -103,7 +103,7 @@ public final class SceneGraph implements RSScene {
             Tile tile = tileArray[zLoc][xLoc][yLoc] = tileArray[zLoc + 1][xLoc][yLoc];
             if (tile != null) {
                 tile.z1AnInt1307--;
-                for (int j1 = 0; j1 < tile.gameObjectIndex; j1++) {
+                for (int j1 = 0; j1 < tile.gameObjectsCount; j1++) {
                     GameObject gameObject = tile.gameObjects[j1];
                     if ((gameObject.uid >> 29 & 3) == 2 && gameObject.xLocLow == xLoc && gameObject.yLocHigh == yLoc)
                         gameObject.zLoc--;
@@ -193,7 +193,7 @@ public final class SceneGraph implements RSScene {
         int largestItemDropHeight = 0;
         Tile parentTile = tileArray[zLoc][xLoc][yLoc];
         if (parentTile != null) {
-            for (int i = 0; i < parentTile.gameObjectIndex; i++)
+            for (int i = 0; i < parentTile.gameObjectsCount; i++)
                 if (parentTile.gameObjects[i].renderable instanceof Model) {
                     int objectItemDropHeight = ((Model) parentTile.gameObjects[i].renderable).itemDropHeight;
                     if (objectItemDropHeight > largestItemDropHeight)
@@ -308,10 +308,10 @@ public final class SceneGraph implements RSScene {
         }
         for (int x = xLoc; x < xLoc + sizeX; x++) {
             for (int y = yLoc; y < yLoc + sizeY; y++) {
-                if (x < 0 || y < 0 || x >= maxX || y >= maxZ)
+                if (x < 0 || y < 0 || x >= xSize || y >= ySize)
                     return false;
                 Tile tile = tileArray[zLoc][x][y];
-                if (tile != null && tile.gameObjectIndex >= 5)
+                if (tile != null && tile.gameObjectsCount >= 5)
                     return false;
             }
 
@@ -346,11 +346,11 @@ public final class SceneGraph implements RSScene {
                         tileArray[z][x][y] = new Tile(z, x, y);
 
                 Tile tile = tileArray[zLoc][x][y];
-                tile.gameObjects[tile.gameObjectIndex] = gameObject;
-                tile.gameObjectsChanged(tile.gameObjectIndex);
-                tile.tiledObjectMasks[tile.gameObjectIndex] = mask;
+                tile.gameObjects[tile.gameObjectsCount] = gameObject;
+                tile.gameObjectsChanged(tile.gameObjectsCount);
+                tile.tiledObjectMasks[tile.gameObjectsCount] = mask;
                 tile.totalTiledObjectMask |= mask;
-                tile.gameObjectIndex++;
+                tile.gameObjectsCount++;
             }
 
         }
@@ -377,22 +377,22 @@ public final class SceneGraph implements RSScene {
             for (int y = gameObject.yLocHigh; y <= gameObject.yLocLow; y++) {
                 Tile tile = tileArray[gameObject.zLoc][x][y];
                 if (tile != null) {
-                    for (int i = 0; i < tile.gameObjectIndex; i++) {
+                    for (int i = 0; i < tile.gameObjectsCount; i++) {
                         if (tile.gameObjects[i] != gameObject)
                             continue;
-                        tile.gameObjectIndex--;
-                        for (int i1 = i; i1 < tile.gameObjectIndex; i1++) {
+                        tile.gameObjectsCount--;
+                        for (int i1 = i; i1 < tile.gameObjectsCount; i1++) {
                             tile.gameObjects[i1] = tile.gameObjects[i1 + 1];
                             tile.tiledObjectMasks[i1] = tile.tiledObjectMasks[i1 + 1];
                         }
 
-                        tile.gameObjects[tile.gameObjectIndex] = null;
-                        tile.gameObjectsChanged(tile.gameObjectIndex);
+                        tile.gameObjects[tile.gameObjectsCount] = null;
+                        tile.gameObjectsChanged(tile.gameObjectsCount);
                         break;
                     }
 
                     tile.totalTiledObjectMask = 0;
-                    for (int i = 0; i < tile.gameObjectIndex; i++)
+                    for (int i = 0; i < tile.gameObjectsCount; i++)
                         tile.totalTiledObjectMask |= tile.tiledObjectMasks[i];
                 }
             }
@@ -432,7 +432,7 @@ public final class SceneGraph implements RSScene {
         Tile tile = tileArray[zLoc][xLoc][yLoc];
         if (tile == null)
             return;
-        for (int j1 = 0; j1 < tile.gameObjectIndex; j1++) {
+        for (int j1 = 0; j1 < tile.gameObjectsCount; j1++) {
             GameObject gameObject = tile.gameObjects[j1];
             if ((gameObject.uid >> 29 & 3) == 2 && gameObject.xLocLow == xLoc && gameObject.yLocHigh == yLoc) {
                 remove(gameObject);
@@ -476,7 +476,7 @@ public final class SceneGraph implements RSScene {
         Tile tile = tileArray[zLoc][xLoc][yLoc];
         if (tile == null)
             return null;
-        for (int i = 0; i < tile.gameObjectIndex; i++) {
+        for (int i = 0; i < tile.gameObjectsCount; i++) {
             GameObject gameObject = tile.gameObjects[i];
             if ((gameObject.uid >> 29 & 3) == 2 && gameObject.xLocLow == xLoc && gameObject.yLocHigh == yLoc)
                 return gameObject;
@@ -512,7 +512,7 @@ public final class SceneGraph implements RSScene {
         Tile tile = tileArray[zLoc][xLoc][yLoc];
         if (tile == null)
             return 0;
-        for (int i = 0; i < tile.gameObjectIndex; i++) {
+        for (int i = 0; i < tile.gameObjectsCount; i++) {
             GameObject gameObject = tile.gameObjects[i];
             if ((gameObject.uid >> 29 & 3) == 2 && gameObject.xLocLow == xLoc && gameObject.yLocHigh == yLoc)
                 return gameObject.uid;
@@ -528,176 +528,213 @@ public final class SceneGraph implements RSScene {
             return tile.groundDecoration.uid;
     }
 
-
-    public void shadeModels(int lightY, int lightX, int lightZ) {
-        int intensity = 64;// was parameter
-        int diffusion = 768;// was parameter
-        int lightDistance = (int) Math.sqrt(lightX * lightX + lightY * lightY + lightZ * lightZ);
-        int someLightQualityVariable = diffusion * lightDistance >> 8;
-        for (int zLoc = 0; zLoc < maxY; zLoc++) {
-            for (int xLoc = 0; xLoc < maxX; xLoc++) {
-                for (int yLoc = 0; yLoc < maxZ; yLoc++) {
-                    Tile tile = tileArray[zLoc][xLoc][yLoc];
+    public void shadeModels(int lightX, int lightY, int lightZ) {
+//    	int intensity = 64;// was parameter
+//    	int diffusion = 768;// was parameter
+//    	int lightDistance = (int) Math.sqrt(lightX * lightX + lightY * lightY + lightZ * lightZ);
+//    	int someLightQualityVariable = diffusion * lightDistance >> 8;
+        for (int zLoc = 0; zLoc < this.planes; ++zLoc) {
+            for (int xLoc = 0; xLoc < this.xSize; ++xLoc) {
+                for (int yLoc = 0; yLoc < this.ySize; ++yLoc) {
+                    Tile tile = this.tileArray[zLoc][xLoc][yLoc];
                     if (tile != null) {
+
                         WallObject wallObject = tile.wallObject;
-                        if (wallObject != null && wallObject.renderable1 != null
-                                && wallObject.renderable1.normals != null) {
-                            method307(zLoc, 1, 1, xLoc, yLoc, (Model) wallObject.renderable1);
-                            if (wallObject.renderable2 != null && wallObject.renderable2.normals != null) {
-                                method307(zLoc, 1, 1, xLoc, yLoc, (Model) wallObject.renderable2);
-                                mergeNormals((Model) wallObject.renderable1, (Model) wallObject.renderable2, 0, 0,
-                                        0, false);
-                                ((Model) wallObject.renderable2).setLighting(intensity, someLightQualityVariable,
-                                        lightX, lightY, lightZ);
+                        if (wallObject != null && wallObject.renderable1 != null && wallObject.renderable1.vertexNormals != null && wallObject.renderable1 instanceof Model) { //wallObject.renderable1 != null && wallObject.renderable1.vertexNormals != null
+                            Model renderable = (Model) wallObject.renderable1;
+                            this.method307(renderable, zLoc, xLoc, yLoc, 1, 1);
+                            if (wallObject.renderable2 instanceof Model) {
+                                Model renderable2 = (Model) wallObject.renderable2;
+                                this.method307(renderable2, zLoc, xLoc, yLoc, 1, 1);
+                                mergeNormals(renderable, renderable2, 0, 0, 0, false);
+                                wallObject.renderable2 = renderable2.light(renderable2.ambient, renderable2.contrast, lightX, lightY, lightZ);
+                                //wallObject.renderable2 = renderable2.light(intensity, someLightQualityVariable, lightX, lightY, lightZ);
                             }
-                            ((Model) wallObject.renderable1).setLighting(intensity, someLightQualityVariable,
-                                    lightX, lightY, lightZ);
+
+                            wallObject.renderable1 = renderable.light(renderable.ambient, renderable.contrast, lightX, lightY, lightZ);
+                            //wallObject.renderable1 = renderable.light(intensity, someLightQualityVariable, lightX, lightY, lightZ);
                         }
-                        for (int k2 = 0; k2 < tile.gameObjectIndex; k2++) {
-                            GameObject interactableObject = tile.gameObjects[k2];
-                            if (interactableObject != null && interactableObject.renderable != null
-                                    && interactableObject.renderable.normals != null) {
-                                method307(zLoc, (interactableObject.xLocHigh - interactableObject.xLocLow) + 1,
-                                        (interactableObject.yLocLow - interactableObject.yLocHigh) + 1, xLoc, yLoc,
-                                        (Model) interactableObject.renderable);
-                                ((Model) interactableObject.renderable).setLighting(intensity,
-                                        someLightQualityVariable, lightX, lightY, lightZ);
+
+                        for (int var12 = 0; var12 < tile.gameObjectsCount; ++var12) {
+                            GameObject gameObject = tile.gameObjects[var12];
+                            if (gameObject != null && gameObject.renderable != null && gameObject.renderable.vertexNormals != null && gameObject.renderable instanceof Model) { //gameObject.renderable != null && gameObject.renderable.vertexNormals != null
+                                Model renderable = (Model) gameObject.renderable;
+                                this.method307(renderable, zLoc, xLoc, yLoc, gameObject.xLocHigh - gameObject.xLocLow + 1, gameObject.yLocLow - gameObject.yLocHigh + 1); //TODO yLocLow/High swapped potentially?
+                                gameObject.renderable = renderable.light(renderable.ambient, renderable.contrast, lightX, lightY, lightZ);
+                                //gameObject.renderable = renderable.light(intensity, someLightQualityVariable, lightX, lightY, lightZ);
                             }
                         }
 
                         GroundDecoration groundDecoration = tile.groundDecoration;
-                        if (groundDecoration != null && groundDecoration.renderable.normals != null) {
-                            method306GroundDecorationOnly(xLoc, zLoc, (Model) groundDecoration.renderable, yLoc);
-                            ((Model) groundDecoration.renderable).setLighting(intensity, someLightQualityVariable, lightX, lightY, lightZ);
+                        if (groundDecoration != null && groundDecoration.renderable.vertexNormals != null && groundDecoration.renderable instanceof Model) { // && groundDecoration.renderable.vertexNormals != null
+                            Model renderable = (Model) groundDecoration.renderable;
+                            this.method306GroundDecorationOnly(renderable, zLoc, xLoc, yLoc);
+                            groundDecoration.renderable = renderable.light(renderable.ambient, renderable.contrast, lightX, lightY, lightZ);
+                            //groundDecoration.renderable = renderable.light(intensity, someLightQualityVariable, lightX, lightY, lightZ);
                         }
-
                     }
                 }
             }
         }
     }
 
-    private void method306GroundDecorationOnly(int modelXLoc, int modelZLoc, Model model, int modelYLoc) { //TODO figure it out
-        if (modelXLoc < maxX) {
-            Tile tile = tileArray[modelZLoc][modelXLoc + 1][modelYLoc];
-            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable.normals != null)
+    private void method306GroundDecorationOnly(Model model, int zLoc, int xLoc, int yLoc) {
+        if (xLoc < this.xSize) {
+            Tile tile = this.tileArray[zLoc][xLoc + 1][yLoc];
+            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable instanceof Model)
                 mergeNormals(model, (Model) tile.groundDecoration.renderable, 128, 0, 0, true);
         }
-        if (modelYLoc < maxX) {
-            Tile tile = tileArray[modelZLoc][modelXLoc][modelYLoc + 1];
-            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable.normals != null)
+
+        if (yLoc < this.xSize) {
+            Tile tile = this.tileArray[zLoc][xLoc][yLoc + 1];
+            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable instanceof Model)
                 mergeNormals(model, (Model) tile.groundDecoration.renderable, 0, 0, 128, true);
         }
-        if (modelXLoc < maxX && modelYLoc < maxZ) {
-            Tile tile = tileArray[modelZLoc][modelXLoc + 1][modelYLoc + 1];
-            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable.normals != null)
+
+        if (xLoc < this.xSize && yLoc < this.ySize) {
+            Tile tile = this.tileArray[zLoc][xLoc + 1][yLoc + 1];
+            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable instanceof Model)
                 mergeNormals(model, (Model) tile.groundDecoration.renderable, 128, 0, 128, true);
         }
-        if (modelXLoc < maxX && modelYLoc > 0) {
-            Tile tile = tileArray[modelZLoc][modelXLoc + 1][modelYLoc - 1];
-            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable.normals != null)
+
+        if (xLoc < this.xSize && yLoc > 0) {
+            Tile tile = this.tileArray[zLoc][xLoc + 1][yLoc - 1];
+            if (tile != null && tile.groundDecoration != null && tile.groundDecoration.renderable instanceof Model)
                 mergeNormals(model, (Model) tile.groundDecoration.renderable, 128, 0, -128, true);
         }
     }
 
-    private void method307(int modelZLoc, int modelXSize, int modelYSize, int modelXLoc, int modelYLoc, Model model) {
-        boolean flag = true;
-        int startX = modelXLoc;
-        int stopX = modelXLoc + modelXSize;
-        int startY = modelYLoc - 1;
-        int stopY = modelYLoc + modelYSize;
-        for (int zLoc = modelZLoc; zLoc <= modelZLoc + 1; zLoc++)
-            if (zLoc != maxY) {//TODO Always?
-                for (int xLoc = startX; xLoc <= stopX; xLoc++)
-                    if (xLoc >= 0 && xLoc < maxX) {
-                        for (int yLoc = startY; yLoc <= stopY; yLoc++)
-                            if (yLoc >= 0 && yLoc < maxZ && (!flag || xLoc >= stopX || yLoc >= stopY || yLoc < modelYLoc && xLoc != modelXLoc)) {
-                                Tile tile = tileArray[zLoc][xLoc][yLoc];
-                                if (tile != null) {
-                                    int relativeHeightToModelTile = (heightMap[zLoc][xLoc][yLoc] + heightMap[zLoc][xLoc + 1][yLoc] + heightMap[zLoc][xLoc][yLoc + 1] + heightMap[zLoc][xLoc + 1][yLoc + 1]) / 4 - (heightMap[modelZLoc][modelXLoc][modelYLoc] + heightMap[modelZLoc][modelXLoc + 1][modelYLoc] + heightMap[modelZLoc][modelXLoc][modelYLoc + 1] + heightMap[modelZLoc][modelXLoc + 1][modelYLoc + 1]) / 4;
-                                    WallObject wallObject = tile.wallObject;
-                                    if (wallObject != null && wallObject.renderable1 != null && wallObject.renderable1.normals != null)
-                                        mergeNormals(model, (Model) wallObject.renderable1, (xLoc - modelXLoc) * 128 + (1 - modelXSize) * 64, relativeHeightToModelTile, (yLoc - modelYLoc) * 128 + (1 - modelYSize) * 64, flag);
-                                    if (wallObject != null && wallObject.renderable2 != null && wallObject.renderable2.normals != null)
-                                        mergeNormals(model, (Model) wallObject.renderable2, (xLoc - modelXLoc) * 128 + (1 - modelXSize) * 64, relativeHeightToModelTile, (yLoc - modelYLoc) * 128 + (1 - modelYSize) * 64, flag);
-                                    for (int i = 0; i < tile.gameObjectIndex; i++) {
-                                        GameObject gameObject = tile.gameObjects[i];
-                                        if (gameObject != null && gameObject.renderable != null && gameObject.renderable.normals != null) {
-                                            int tiledObjectXSize = (gameObject.xLocHigh - gameObject.xLocLow) + 1;
-                                            int tiledObjectYSize = (gameObject.yLocLow - gameObject.yLocHigh) + 1;
-                                            mergeNormals(model, (Model) gameObject.renderable, (gameObject.xLocLow - modelXLoc) * 128 + (tiledObjectXSize - modelXSize) * 64, relativeHeightToModelTile, (gameObject.yLocHigh - modelYLoc) * 128 + (tiledObjectYSize - modelYSize) * 64, flag);
+    private void method307(Model model, int zLoc, int xLoc, int yLoc, int xSize, int ySize) {
+        boolean var7 = true;
+        int var8 = xLoc;
+        int var9 = xLoc + xSize;
+        int var10 = yLoc - 1;
+        int var11 = yLoc + ySize;
+
+        for (int var12 = zLoc; var12 <= zLoc + 1; ++var12) {
+            if (var12 != this.planes) {
+                for (int var13 = var8; var13 <= var9; ++var13) {
+                    if (var13 >= 0 && var13 < this.xSize) {
+                        for (int var14 = var10; var14 <= var11; ++var14) {
+                            if (var14 >= 0 && var14 < this.ySize && (!var7 || var13 >= var9 || var14 >= var11 || var14 < yLoc && xLoc != var13)) {
+                                Tile var15 = this.tileArray[var12][var13][var14];
+                                if (var15 != null) {
+                                    int var16 = (this.heightMap[var12][var13 + 1][var14] + this.heightMap[var12][var13 + 1][var14 + 1] + this.heightMap[var12][var13][var14] + this.heightMap[var12][var13][var14 + 1]) / 4 - (this.heightMap[zLoc][xLoc + 1][yLoc] + this.heightMap[zLoc][xLoc][yLoc] + this.heightMap[zLoc][xLoc + 1][yLoc + 1] + this.heightMap[zLoc][xLoc][yLoc + 1]) / 4;
+                                    WallObject var17 = var15.wallObject;
+                                    if (var17 != null) {
+                                        Model var18;
+                                        if (var17.renderable1 instanceof Model) {
+                                            var18 = (Model)var17.renderable1;
+                                            mergeNormals(model, var18, (1 - xSize) * 64 + (var13 - xLoc) * 128, var16, (var14 - yLoc) * 128 + (1 - ySize) * 64, var7);
+                                        }
+
+                                        if (var17.renderable2 instanceof Model) {
+                                            var18 = (Model)var17.renderable2;
+                                            mergeNormals(model, var18, (1 - xSize) * 64 + (var13 - xLoc) * 128, var16, (var14 - yLoc) * 128 + (1 - ySize) * 64, var7);
+                                        }
+                                    }
+
+                                    for (int var23 = 0; var23 < var15.gameObjectsCount; ++var23) {
+                                        GameObject var19 = var15.gameObjects[var23];
+                                        if (var19 != null && var19.renderable instanceof Model) {
+                                            Model var20 = (Model)var19.renderable;
+                                            int var21 = var19.xLocHigh - var19.xLocLow + 1;
+                                            int var22 = var19.yLocLow - var19.yLocHigh + 1;  //TODO yLocLow/High swapped potentially?
+                                            mergeNormals(model, var20, (var21 - xSize) * 64 + (var19.xLocLow - xLoc) * 128, var16, (var19.yLocHigh - yLoc) * 128 + (var22 - ySize) * 64, var7);
                                         }
                                     }
                                 }
                             }
+                        }
                     }
-                startX--; //TODO why?
-                flag = false;
-            }
+                }
 
+                --var8;
+                var7 = false;
+            }
+        }
     }
 
-    private void mergeNormals(final Model model, final Model secondModel, final int posX, final int posY, final int posZ, final boolean flag) {
-        this.anInt488++;
+    private static void mergeNormals(Model first, Model second, int dx, int dy, int dz, boolean flag) {
+        first.calculateBounds();
+        first.calculateVertexNormals();
+        second.calculateBounds();
+        second.calculateVertexNormals();
+        ++anInt488;
         int count = 0;
-        final int[] vertices = secondModel.verticesX;
-        final int vertexCount = secondModel.verticesCount;
+        int[] secondX = second.verticesX;
+        int secondVertices = second.verticesCount;
 
-        for (int vertex = 0; vertex < model.verticesCount; vertex++) {
-            final VertexNormal vertexNormal = model.normals[vertex];
-            final VertexNormal offsetVertexNormal = model.vertexNormalsOffsets[vertex];
-            if (offsetVertexNormal.magnitude != 0) {
-                final int y = model.verticesY[vertex] - posY;
-                if (y <= secondModel.maxY) {
-                    final int x = model.verticesX[vertex] - posX;
-                    if (x >= secondModel.minX && x <= secondModel.maxX) {
-                        final int z = model.verticesZ[vertex] - posZ;
-                        if (z >= secondModel.minZ && z <= secondModel.maxZ) {
-                            for (int v = 0; v < vertexCount; v++) {
-                                final VertexNormal vertexNormal2 = secondModel.normals[v];
-                                final VertexNormal offsetVertexNormal2 = secondModel.vertexNormalsOffsets[v];
-                                if (x == vertices[v] && z == secondModel.verticesZ[v] && y == secondModel.verticesY[v]
-                                        && offsetVertexNormal2.magnitude != 0) {
-                                    vertexNormal.x += offsetVertexNormal2.x;
-                                    vertexNormal.y += offsetVertexNormal2.y;
-                                    vertexNormal.z += offsetVertexNormal2.z;
-                                    vertexNormal.magnitude += offsetVertexNormal2.magnitude;
-                                    vertexNormal2.x += offsetVertexNormal.x;
-                                    vertexNormal2.y += offsetVertexNormal.y;
-                                    vertexNormal2.z += offsetVertexNormal.z;
-                                    vertexNormal2.magnitude += offsetVertexNormal.magnitude;
-                                    count++;
-                                    this.anIntArray486[vertex] = this.anInt488;
-                                    this.anIntArray487[v] = this.anInt488;
+        for (int vA = 0; vA < first.verticesCount; ++vA) {
+            VertexNormal parentNormalA = first.vertexNormals[vA];
+            if (parentNormalA.magnitude != 0) {
+                int y = first.verticesY[vA] - dy;
+                if (y <= second.maxY) {
+                    int x = first.verticesX[vA] - dx;
+                    if (x >= second.minX && x <= second.maxX) {
+                        int z = first.verticesZ[vA] - dz;
+                        if (z >= second.minZ && z <= second.maxZ) {
+                            for (int vB = 0; vB < secondVertices; ++vB) {
+                                VertexNormal parentNormalB = second.vertexNormals[vB];
+                                if (x == secondX[vB] && z == second.verticesZ[vB] && y == second.verticesY[vB] && parentNormalB.magnitude != 0) {
+                                    if (first.vertexNormalsOffsets == null) {
+                                        first.vertexNormalsOffsets = new VertexNormal[first.verticesCount];
+                                    }
+
+                                    if (second.vertexNormalsOffsets == null) {
+                                        second.vertexNormalsOffsets = new VertexNormal[secondVertices];
+                                    }
+
+                                    VertexNormal normalA = first.vertexNormalsOffsets[vA];
+                                    if (normalA == null) {
+                                        normalA = first.vertexNormalsOffsets[vA] = new VertexNormal(parentNormalA);
+                                    }
+
+                                    VertexNormal normalB = second.vertexNormalsOffsets[vB];
+                                    if (normalB == null) {
+                                        normalB = second.vertexNormalsOffsets[vB] = new VertexNormal(parentNormalB);
+                                    }
+
+                                    normalA.x += parentNormalB.x;
+                                    normalA.y += parentNormalB.y;
+                                    normalA.z += parentNormalB.z;
+                                    normalA.magnitude += parentNormalB.magnitude;
+                                    normalB.x += parentNormalA.x;
+                                    normalB.y += parentNormalA.y;
+                                    normalB.z += parentNormalA.z;
+                                    normalB.magnitude += parentNormalA.magnitude;
+                                    ++count;
+                                    anIntArray486[vA] = anInt488;
+                                    anIntArray487[vB] = anInt488;
                                 }
                             }
-
                         }
                     }
                 }
             }
         }
 
-        if (count < 3 || !flag) {
-            return;
-        }
+        if (count >= 3 && flag) {
+            for (int var9 = 0; var9 < first.trianglesCount; ++var9) {
+                if (anIntArray486[first.trianglesX[var9]] == anInt488 && anIntArray486[first.trianglesY[var9]] == anInt488 && anIntArray486[first.trianglesZ[var9]] == anInt488) {
+                    if (first.drawType == null) {
+                        first.drawType = new int[first.trianglesCount]; //should be int
+                    }
 
-        for (int triangle = 0; triangle < model.trianglesCount; triangle++) {
-            if (this.anIntArray486[model.trianglesX[triangle]] == this.anInt488
-                    && this.anIntArray486[model.trianglesY[triangle]] == this.anInt488
-                    && this.anIntArray486[model.trianglesZ[triangle]] == this.anInt488) {
-                model.drawType[triangle] = -1;
+                    first.drawType[var9] = 2;
+                }
+            }
+
+            for (int var9 = 0; var9 < second.trianglesCount; ++var9) {
+                if (anInt488 == anIntArray487[second.trianglesX[var9]] && anInt488 == anIntArray487[second.trianglesY[var9]] && anInt488 == anIntArray487[second.trianglesZ[var9]]) {
+                    if (second.drawType == null) {
+                        second.drawType = new int[second.trianglesCount]; //should be int
+                    }
+
+                    second.drawType[var9] = 2;
+                }
             }
         }
-
-        for (int triangle = 0; triangle < secondModel.trianglesCount; triangle++) {
-            if (this.anIntArray487[secondModel.trianglesX[triangle]] == this.anInt488
-                    && this.anIntArray487[secondModel.trianglesY[triangle]] == this.anInt488
-                    && this.anIntArray487[secondModel.trianglesZ[triangle]] == this.anInt488) {
-                secondModel.drawType[triangle] = -1;
-            }
-        }
-
     }
 
     public void drawTileMinimap(int[] pixels, int pixelOffset, int z, int x, int y)
@@ -1109,9 +1146,9 @@ public final class SceneGraph implements RSScene {
             );
         }
 
-        final int maxX = getMaxX();
-        final int maxY = getMaxY();
-        final int maxZ = getMaxZ();
+        final int maxX = getxSize();
+        final int maxY = getPlanes();
+        final int maxZ = getySize();
 
         final int minLevel = getMinLevel();
 
@@ -1537,7 +1574,7 @@ public final class SceneGraph implements RSScene {
                         class10.renderable1.renderAtPoint(0, camUpDownY, camUpDownX, camLeftRightY, camLeftRightX,
                                 class10.xPos - xCameraPos, class10.tileHeights - zCameraPos, class10.yPos - yCameraPos,
                                 class10.uid);
-                    for (int i2 = 0; i2 < class30_sub3_7.gameObjectIndex; i2++) {
+                    for (int i2 = 0; i2 < class30_sub3_7.gameObjectsCount; i2++) {
                         GameObject class28 = class30_sub3_7.gameObjects[i2];
                         if (class28 != null)
                             class28.renderable.renderAtPoint(class28.turnValue, camUpDownY, camUpDownX, camLeftRightY, camLeftRightX, class28.xPos - xCameraPos, class28.tileHeight - zCameraPos, class28.yPos - yCameraPos, class28.uid);
@@ -1683,7 +1720,7 @@ public final class SceneGraph implements RSScene {
             }
             if (currentTile.wallCullDirection != 0) {
                 boolean flag2 = true;
-                for (int k1 = 0; k1 < currentTile.gameObjectIndex; k1++) {
+                for (int k1 = 0; k1 < currentTile.gameObjectsCount; k1++) {
                     if (currentTile.gameObjects[k1].anInt528 == cycle || (currentTile.tiledObjectMasks[k1]
                             & currentTile.wallCullDirection) != currentTile.anInt1326)
                         continue;
@@ -1702,7 +1739,7 @@ public final class SceneGraph implements RSScene {
             }
             if (currentTile.aBoolean1324)
                 try {
-                    int i1 = currentTile.gameObjectIndex;
+                    int i1 = currentTile.gameObjectsCount;
                     currentTile.aBoolean1324 = false;
                     int l1 = 0;
                     label0: for (int k2 = 0; k2 < i1; k2++) {
@@ -1881,7 +1918,7 @@ public final class SceneGraph implements RSScene {
                                 class10_2.yPos - yCameraPos, class10_2.uid);
                 }
             }
-            if (k < maxY - 1) {
+            if (k < planes - 1) {
                 Tile class30_sub3_12 = tileArray[k + 1][i][j];
                 if (class30_sub3_12 != null && class30_sub3_12.aBoolean1323)
                     tileDeque.insertHead(class30_sub3_12);
@@ -2696,9 +2733,9 @@ public final class SceneGraph implements RSScene {
     }
 
     public static boolean lowMem = false;
-    private final int maxY;
-    private final int maxX;
-    private final int maxZ;
+    private final int planes;
+    private final int xSize;
+    private final int ySize;
     private final int[][][] heightMap;
     private final Tile[][][] tileArray;
     private int minLevel;
@@ -2749,9 +2786,9 @@ public final class SceneGraph implements RSScene {
     private static final int[] TEXTURE_COLORS = { 41, 39248, 41, 4643, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 43086,
             41, 41, 41, 41, 41, 41, 41, 8602, 41, 28992, 41, 41, 41, 41, 41, 5056, 41, 41, 41, 7079, 41, 41, 41, 41, 41,
             41, 41, 41, 41, 41, 3131, 41, 41, 41 };
-    private final int[] anIntArray486;
-    private final int[] anIntArray487;
-    private int anInt488;
+    private static int[] anIntArray486;
+    private static int[] anIntArray487;
+    private static int anInt488;
     private final int[][] tileVertices = { new int[16], { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
             { 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1 }, { 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },
             { 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1 }, { 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
@@ -2909,18 +2946,18 @@ public final class SceneGraph implements RSScene {
     }
 
     @Override
-    public int getMaxX() {
-        return maxX;
+    public int getxSize() {
+        return xSize;
     }
 
     @Override
-    public int getMaxY() {
-        return maxY;
+    public int getPlanes() {
+        return planes;
     }
 
     @Override
-    public int getMaxZ() {
-        return maxZ;
+    public int getySize() {
+        return ySize;
     }
 
     @Override

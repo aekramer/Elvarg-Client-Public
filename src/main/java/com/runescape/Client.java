@@ -7940,7 +7940,7 @@ public class Client extends GameEngine implements RSClient {
 
                 model.generateBones();
                 model.animate(Animation.animations[localPlayer.idleAnimation].primaryFrames[0]);
-                model.light(64, 850, -30, -50, -30, true);
+                model = model.light(64, 850, -30, -50, -30);
                 widget.defaultMediaType = 5;
                 widget.defaultMedia = 0;
                 Widget.method208(aBoolean994, model);

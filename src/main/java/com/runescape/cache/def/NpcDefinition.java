@@ -368,7 +368,7 @@ public final class NpcDefinition implements RSNPCComposition {
 			}
 			model.generateBones();
 			model.scale(132, 132, 132);
-			model.light(84 + ambient, 1000 + contrast, -90, -580, -90, true);
+			model = model.light(84 + ambient, 1000 + contrast, -90, -580, -90);
 			modelCache.put(model, interfaceType);
 		}
 		Model empty = Model.emptyModel;
@@ -418,7 +418,7 @@ public final class NpcDefinition implements RSNPCComposition {
 
 			}
 			model.generateBones();
-			model.light(64 + ambient, 850 + contrast, -30, -50, -30, true);
+			model = model.light(64 + ambient, 850 + contrast, -30, -50, -30);
 			modelCache.put(model, interfaceType);
 		}
 		Model model_1 = Model.emptyModel;

@@ -445,9 +445,9 @@ public final class ItemDefinition implements RSItemComposition {
                 primaryModel_ = new Model(2, models);
             }
         if (gender == 0 && maleOffset != 0)
-            primaryModel_.offsetBy(0, maleOffset, 0);
+            primaryModel_.changeOffset(0, maleOffset, 0);
         if (gender == 1 && femaleOffset != 0)
-            primaryModel_.offsetBy(0, femaleOffset, 0);
+            primaryModel_.changeOffset(0, femaleOffset, 0);
 
         if (colorReplace != null) {
             for (int i1 = 0; i1 < colorReplace.length; i1++)
@@ -638,7 +638,7 @@ public final class ItemDefinition implements RSItemComposition {
         }
         int lightInt = 64 + ambient;
         int lightMag = 768 + contrast;
-        model.light(lightInt, lightMag, -50, -10, -50, true);
+        model = model.light(lightInt, lightMag, -50, -10, -50);
         model.singleTile = true;
         models.put(model, id);
         return model;

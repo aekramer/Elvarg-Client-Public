@@ -324,20 +324,20 @@ public final class ObjectDefinition implements ObjectComposition {
             return lookup(configs[i]);
     }
 
-    public Model model(int j, int k, int l) {
+    public Model model(int objType, int frameId, int orientation) {
         Model model = null;
         long l1;
         if (objectTypes == null) {
-            if (j != 10)
+            if (objType != 10)
                 return null;
-            l1 = (long) ((type << 6) + l) + ((long) (k + 1) << 32);
+            l1 = (long) ((type << 6) + orientation) + ((long) (frameId + 1) << 32);
             Model model_1 = (Model) models.get(l1);
             if (model_1 != null) {
                 return model_1;
             }
             if (objectModels == null)
                 return null;
-            boolean flag1 = inverted ^ (l > 3);
+            boolean flag1 = inverted ^ (orientation > 3);
             int k1 = objectModels.length;
             for (int i2 = 0; i2 < k1; i2++) {
                 int l2 = objectModels[i2];
@@ -361,7 +361,7 @@ public final class ObjectDefinition implements ObjectComposition {
         } else {
             int i1 = -1;
             for (int j1 = 0; j1 < objectTypes.length; j1++) {
-                if (objectTypes[j1] != j)
+                if (objectTypes[j1] != objType)
                     continue;
                 i1 = j1;
                 break;
@@ -369,7 +369,7 @@ public final class ObjectDefinition implements ObjectComposition {
 
             if (i1 == -1)
                 return null;
-            l1 = (long) ((type << 8) + (i1 << 3) + l) + ((long) (k + 1) << 32);
+            l1 = (long) ((type << 8) + (i1 << 3) + orientation) + ((long) (frameId + 1) << 32);
             Model model_2 = (Model) models.get(l1);
             if (model_2 != null) {
                 return model_2;
@@ -378,7 +378,7 @@ public final class ObjectDefinition implements ObjectComposition {
                 return null;
             }
             int j2 = objectModels[i1];
-            boolean flag3 = inverted ^ (l > 3);
+            boolean flag3 = inverted ^ (orientation > 3);
             if (flag3)
                 j2 += 0x10000;
             model = (Model) baseModels.get(j2);
@@ -395,16 +395,19 @@ public final class ObjectDefinition implements ObjectComposition {
         flag = scaleX != 128 || scaleY != 128 || scaleZ != 128;
         boolean flag2;
         flag2 = translateX != 0 || translateY != 0 || translateZ != 0;
-        Model model_3 = new Model(recolorToFind == null,
-                Frame.noAnimationInProgress(k), l == 0 && k == -1 && !flag
-                && !flag2, textureFind == null, model);
-        if (k != -1) {
+        Model model_3 = new Model(
+                recolorToFind == null,
+                Frame.noAnimationInProgress(frameId),
+                orientation == 0 && frameId == -1 && !flag && !flag2,
+                textureFind == null,
+                model);
+        if (frameId != -1) {
             model_3.generateBones();
-            model_3.animate(k);
+            model_3.animate(frameId);
             model_3.faceGroups = null;
             model_3.vertexGroups = null;
         }
-        while (l-- > 0)
+        while (orientation-- > 0)
             model_3.rotate90Degrees();
 
         if (recolorToFind != null) {
@@ -422,8 +425,25 @@ public final class ObjectDefinition implements ObjectComposition {
         if (flag)
             model_3.scale(scaleX, scaleZ, scaleY);
         if (flag2)
-            model_3.offsetBy(translateX, translateY, translateZ);
-        model_3.light(85 + ambient, 768 + contrast, -50, -10, -50, !mergeNormals);
+            model_3.changeOffset(translateX, translateY, translateZ);
+        //model_3.light(85 + ambient, 768 + contrast, -50, -10, -50, !mergeNormals);
+
+        if (!mergeNormals) {
+            model_3.ambient = (short)(this.ambient + 64);
+            model_3.contrast = (short)(this.contrast + 768);
+            model_3.calculateVertexNormals();
+        }
+
+//        if (mergeNormals) {
+            model_3 = model_3.light(85 + ambient, 768 + contrast, -50, -10, -50);
+//        } else {
+//        	model.ambient = (short)(this.ambient + 64);
+//        	model.contrast = (short)(this.contrast + 768);
+//        	model.calculateVertexNormals();
+//        	//model_3 = model_3.copyModelData();
+//        }
+
+
         if (supportItems == 1)
             model_3.itemDropHeight = model_3.modelBaseY;
         models.put(model_3, l1);

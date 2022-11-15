@@ -10,7 +10,7 @@ import net.runelite.rs.api.RSRenderable;
 public class Renderable extends Cacheable implements RSRenderable {
 
     public int modelBaseY;
-    public VertexNormal normals[];
+    public VertexNormal vertexNormals[];
 
     public void renderAtPoint(int i, int j, int k, int l, int i1, int j1, int k1, int l1, long i2) {
         Model model = getRotatedModel();

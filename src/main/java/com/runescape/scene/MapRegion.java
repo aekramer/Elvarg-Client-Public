@@ -278,7 +278,7 @@ public final class MapRegion {
                 }
             }
 
-            scene.shadeModels(-10, -50, -50);
+            scene.shadeModels(-50,-10,-50);
             for (int j1 = 0; j1 < regionSizeX; j1++) {
                 for (int l1 = 0; l1 < regionSizeY; l1++)
                     if ((tileFlags[1][j1][l1] & 2) == 2)
